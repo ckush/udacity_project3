@@ -73,7 +73,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Back-end test
+          name: Front-end test
           command: |
             cd frontend
             npm install
@@ -274,8 +274,8 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
+      - test-frontend:
+          requires: [build-frontend]
       # - test-backend:
       #     requires: [build-backend]
       # - scan-backend:
