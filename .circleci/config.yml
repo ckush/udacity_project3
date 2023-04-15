@@ -126,6 +126,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run: yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -145,7 +146,6 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            sudo apt-get update && sudo apt-get install -y tar
             echo "[web]" > .circleci/ansible/inventory.txt
             aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress' --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
