@@ -129,20 +129,23 @@ jobs:
       - run:
           name: Ensure back-end infrastructure exists
           command: |
-            aws fafawewefwefawefawef faewfaewfaewfawe \
-              --tempasfdfadflate-aewfile .circleci/files/backend.yml \
-              --stackadsfadsfaew-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --paramasdgsfawefaewfawe project=udapeople
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople
       - run:
-          name: Efsure front-end infrastructure exist
+          name: Ensure front-end infrastructure exist
           command: |
-            aws aawefaewweefawf-wefawfa .cifaewfcawefaewfleci/files/frontend.yml \
-              --stewfackads-naewfdapeopewfle-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --paramawefawefaadsfsfafeter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
-              --tags projecft=uaewdapeople
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople
       - run:
           name: Add back-end ip to ansible inventory
           command: |
+            sudo apt-get update && sudo apt-get install -y tar
             echo "[web]" > .circleci/ansible/inventory.txt
             aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress' --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
