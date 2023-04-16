@@ -63,8 +63,11 @@ jobs:
             cd backend
             npm install
             npm run build
+            cp .env dist/.env
       - save_cache:
-          paths: [backend/node_modules]
+          paths:
+            - backend/node_modules
+            - backend/dist
           key: backend-build
 
   test-frontend:
@@ -180,8 +183,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys:
-            - build-backend
+          keys: [backend-build]
       - run:
           name: Run migrations
           command: |
