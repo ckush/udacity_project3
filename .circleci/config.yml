@@ -214,6 +214,10 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
+      - persist_to_workspace:
+          root: ~/frontend
+          paths:
+            - .env
       - run:
           name: Deploy frontend objects
           command: |
@@ -253,7 +257,7 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      # Here's where you will add some code to rollback on failure  
+      - destroy-environment   
 
   smoke-test:
     docker:
@@ -269,6 +273,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
+            export API_URL=$(cat ~/frontend/.env | grep "API_URL" | cut -d'=' -f2)
             echo "${API_URL}"
       - run:
           name: Backend smoke test.
@@ -291,7 +296,7 @@ jobs:
             else
               return 1
             fi
-  #     # Here's where you will add some code to rollback on failure  
+      - destroy-environment   
 
   # cloudfront-update:
   #   docker:
