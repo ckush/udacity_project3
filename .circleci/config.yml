@@ -209,7 +209,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress' --output text)
+            export BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[].Instances[].PublicIpAddress' --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -272,10 +272,12 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update curl
+            apk add --update aws-cli
       - run:
           name: Get backend url
           command: |
             pwd
+            cat frontend/.env
             export API_URL=$(cat frontend/.env | grep "API_URL" | cut -d'=' -f2)
             echo "${API_URL}"
       - run:
