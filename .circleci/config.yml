@@ -203,7 +203,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible nodejs npm tar gzip
+            sudo apt-get update && sudo apt-get install -y ansible nodejs npm tar gzip
       - run:
           name: Get backend url
           command: |
@@ -220,6 +220,9 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - persist_to_workspace:
+          root: ~/
+          paths: .
       - destroy-environment       
                     
   deploy-backend:
@@ -254,15 +257,23 @@ jobs:
     docker:
       - image: python:3.7-alpine3.11
     steps:
-      # Checkout code from git
+      -checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            apk add --no-cache curl nodejs npm aws-cli
       - run:
           name: Get backend url
           command: |
-            # your code here
+          echo "${API_URL}"
+          if curl "${API_URL}/api/status" | grep "ok"
+          then
+            return 0
+          else
+            return 1
+          fi
       - run:
           name: Backend smoke test.
           command: |
