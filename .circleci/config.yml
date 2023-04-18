@@ -275,7 +275,8 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export API_URL=$(cat ~/frontend/.env | grep "API_URL" | cut -d'=' -f2)
+            pwd
+            export API_URL=$(cat frontend/.env | grep "API_URL" | cut -d'=' -f2)
             echo "${API_URL}"
       - run:
           name: Backend smoke test.
