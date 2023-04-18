@@ -197,13 +197,13 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-            sudo apt-get update && sudo apt-get install -y ansible nodejs npm tar gzip
+            apk add --update nodejs npm tar gzip
       - run:
           name: Get backend url
           command: |
