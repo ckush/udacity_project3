@@ -12,6 +12,7 @@ commands:
           command: |
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
 
   # revert-migrations:
   #   description: Revert the last migration if successfully run in the current workflow.
@@ -197,13 +198,14 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+    - image: circleci/node:latest
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-            apk add --update nodejs npm tar gzip
+            sudo apt-get update && sudo apt-get install -y python3-pip tar
+            pip3 install --upgrade awscli
       - run:
           name: Get backend url
           command: |
@@ -263,7 +265,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --no-cache curl nodejs npm aws-cli
+            apk add --no-cache curl aws-cli
       - run:
           name: Get backend url
           command: |
