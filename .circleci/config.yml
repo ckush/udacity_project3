@@ -214,11 +214,13 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
+            ls /
+            ls ~
             ls
       - persist_to_workspace:
           root: ~/
           paths:
-            - frontend
+            - project/.circleci/frontend
       - run:
           name: Deploy frontend objects
           command: |
