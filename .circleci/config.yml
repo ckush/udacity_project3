@@ -276,15 +276,12 @@ jobs:
             pip3 install --upgrade pip && \
             pip3 install awscli
       - run:
-          name: Get backend url
+          name: Get backend url and smoke test
           command: |
             pwd
             cat frontend/.env
             export API_URL=$(cat frontend/.env | grep "API_URL" | cut -d'=' -f2)
             echo "${API_URL}"
-      - run:
-          name: Backend smoke test.
-          command: |
             if curl "${API_URL}/api/status" | grep "ok"
             then
               return 0
@@ -294,7 +291,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com"            
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
