@@ -310,9 +310,9 @@ jobs:
       - run:
           name: Store old workflowID before substituting new one
           command: |
-          export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
-          echo Old Workflow ID: "${OldWorkflowID}"
-          echo ${OldWorkflowID} >> ~/OldWorkflowID.txt
+            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
+            echo Old Workflow ID: "${OldWorkflowID}"
+            echo ${OldWorkflowID} >> ~/OldWorkflowID.txt
       - persist_to_workspace:
           root: ~/
           paths: .
