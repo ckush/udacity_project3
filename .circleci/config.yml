@@ -64,6 +64,9 @@ jobs:
             cd backend
             npm install
             npm run build
+            echo $TYPEORM_HOST
+            npm run migrations
+            exit 1
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
