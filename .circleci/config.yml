@@ -64,7 +64,11 @@ jobs:
             cd backend
             npm install
             npm run build
+            echo "=====1======"
             echo $TYPEORM_HOST
+            echo "=====2======"
+            echo $TYPEORM_CONNECTION
+            echo "333333333"
             npm run migrations
             exit 1
       - save_cache:
