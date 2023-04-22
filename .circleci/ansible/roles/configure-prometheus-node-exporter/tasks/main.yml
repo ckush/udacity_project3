@@ -1,27 +1,61 @@
-- name: "install node exporter."
-  unarchive:
-    src: https://github.com/prometheus/node_exporter/releases/download/v0.17.0/node_exporter-0.17.0.linux-amd64.tar.gz
-    dest: /tmp
-    remote_src: yes
-
-- name: "move binary to /usr/local/bin."
+---
+- name: Install Prometheus Node Exporter
+  hosts: web
+  user: ubuntu
   become: true
-  copy:
-    src: /tmp/node_exporter-0.17.0.linux-amd64/node_exporter
-    dest: /usr/local/bin/node_exporter
-    remote_src: yes
-    mode: '0777'
+  
+  tasks:
+    - name: Create Node Exporter user
+      user:
+        name: node_exporter
+        shell: /bin/false
     
-- name: "add node exporter configuration."
-  become: true
-  copy:
-    src: node_exporter.service
-    dest: /etc/systemd/system/
+    - name: Download Node Exporter binaries
+      get_url:
+        url: https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz
+        dest: /tmp/node_exporter.tar.gz
+    
+    - name: Extract Node Exporter binaries
+      become: true
+      unarchive:
+        src: /tmp/node_exporter.tar.gz
+        dest: /tmp/
+        remote_src: yes
+        owner: root
+        mode: 0755
 
-- name: "enable node_exporter service"
-  become: true
-  systemd:
-    state: restarted
-    daemon_reload: yes
-    name: node_exporter
-    enabled: yes
+    - name: Copy node_exporter binary to destination
+      become: true
+      copy:
+        src: /tmp/node_exporter-1.0.1.linux-amd64/node_exporter
+        dest: /usr/local/bin/node_exporter
+    
+    - name: Create Node Exporter systemd service file
+      become: true
+      copy:
+        content: |
+          [Unit]
+          Description=Prometheus Node Exporter Service
+          After=network.target
+
+          [Service]
+          User=node_exporter
+          Group=node_exporter
+          Type=simple
+          ExecStart=/usr/local/bin/node_exporter
+
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/node-exporter.service
+    
+    - name: Reload systemd configuration
+      become: true
+      systemd:
+        daemon_reload: yes
+    
+    - name: Enable and start Node Exporter service
+      become: true
+      systemd:
+        name: node-exporter
+        enabled: yes
+        state: started
