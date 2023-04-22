@@ -1,61 +1,56 @@
 ---
-- name: Install Prometheus Node Exporter
-  hosts: web
-  user: ubuntu
-  become: true
-  
-  tasks:
-    - name: Create Node Exporter user
-      user:
-        name: node_exporter
-        shell: /bin/false
-    
-    - name: Download Node Exporter binaries
-      get_url:
-        url: https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz
-        dest: /tmp/node_exporter.tar.gz
-    
-    - name: Extract Node Exporter binaries
-      become: true
-      unarchive:
-        src: /tmp/node_exporter.tar.gz
-        dest: /tmp/
-        remote_src: yes
-        owner: root
-        mode: 0755
+  - name: Create Node Exporter user
+    user:
+      name: node_exporter
+      shell: /bin/false
 
-    - name: Copy node_exporter binary to destination
-      become: true
-      copy:
-        src: /tmp/node_exporter-1.0.1.linux-amd64/node_exporter
-        dest: /usr/local/bin/node_exporter
-    
-    - name: Create Node Exporter systemd service file
-      become: true
-      copy:
-        content: |
-          [Unit]
-          Description=Prometheus Node Exporter Service
-          After=network.target
+  - name: Download Node Exporter binaries
+    get_url:
+      url: https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz
+      dest: /tmp/node_exporter.tar.gz
 
-          [Service]
-          User=node_exporter
-          Group=node_exporter
-          Type=simple
-          ExecStart=/usr/local/bin/node_exporter
+  - name: Extract Node Exporter binaries
+    become: true
+    unarchive:
+      src: /tmp/node_exporter.tar.gz
+      dest: /tmp/
+      remote_src: yes
+      owner: root
+      mode: 0755
 
-          [Install]
-          WantedBy=multi-user.target
-        dest: /etc/systemd/system/node-exporter.service
-    
-    - name: Reload systemd configuration
-      become: true
-      systemd:
-        daemon_reload: yes
-    
-    - name: Enable and start Node Exporter service
-      become: true
-      systemd:
-        name: node-exporter
-        enabled: yes
-        state: started
+  - name: Copy node_exporter binary to destination
+    become: true
+    copy:
+      src: /tmp/node_exporter-1.0.1.linux-amd64/node_exporter
+      dest: /usr/local/bin/node_exporter
+      remote_src: yes
+
+  - name: Create Node Exporter systemd service file
+    become: true
+    copy:
+      content: |
+        [Unit]
+        Description=Prometheus Node Exporter Service
+        After=network.target
+
+        [Service]
+        User=node_exporter
+        Group=node_exporter
+        Type=simple
+        ExecStart=/usr/local/bin/node_exporter
+
+        [Install]
+        WantedBy=multi-user.target
+      dest: /etc/systemd/system/node-exporter.service
+
+  - name: Reload systemd configuration
+    become: true
+    systemd:
+      daemon_reload: yes
+
+  - name: Enable and start Node Exporter service
+    become: true
+    systemd:
+      name: node-exporter
+      enabled: yes
+      state: started
