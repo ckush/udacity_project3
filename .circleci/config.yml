@@ -28,7 +28,8 @@ commands:
             then
               cd ~/project/backend
               npm install
-              npm run migration:revert
+              npm run build
+              npm run migrations:revert
             fi
             
 jobs:
@@ -179,6 +180,11 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install dependencies
+          command: |
+            sudo apt-get update && sudo apt-get install -y python3-pip tar
+            pip3 install --upgrade awscli
+      - run:
           name: Run migrations
           command: |
             cd backend
@@ -189,6 +195,7 @@ jobs:
       - run:
           name: Send migration results to memstash
           command: |
+            echo "insecure" >> ~/.curlrc
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               # If you are using kvdb.io, generate the bucket ID "9GE4jRtKznmVKRfvdBABBe" in your local terminal first
@@ -196,6 +203,8 @@ jobs:
             else
               curl https://kvdb.io/XiCL9gASnS6oYdbGBJnXzs/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '0'
             fi
+      - destroy-environment       
+      - revert-migrations
 
   deploy-frontend:
     docker:
